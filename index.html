@@ -43,20 +43,23 @@
 			var blue = new THREE.Color().setRGB(0,0,255)
 
 			var redMat = makeMaterial(red)
-			redMat.isRed = true;
+			redMat.col = "red";
 			var greenMat = makeMaterial(green)
-			greenMat.isGreen = true;
+			greenMat.col = "green";
 			var blueMat = makeMaterial(blue)
-			blueMat.isBlue = true;
+			blueMat.col = "blue";
 
 			var wireframeMat = new THREE.MeshBasicMaterial({wireframe: true, wireframeLinewidth: 6, color: 0xffffff})
 
 			var size = 1;
 
-			var gridSize = 20;
+			var gridSize = 9;
 
-			var probability = 0.125;
+			var probability = 0.25;
 			var positions = []
+
+			var i = 0;
+			var cubeGroups
 
 			var cubeGeo = new THREE.BoxGeometry(size, size, size)
 
@@ -91,8 +94,8 @@
 
 
 				camera = new THREE.PerspectiveCamera( 27, window.innerWidth / window.innerHeight, 1, 3500 );
-				camera.position.z = 4;
-				camera.position.y = -35;
+				camera.position.z = 25 * Math.sqrt(gridSize) / 3;
+				camera.position.y = -70 * Math.sqrt(gridSize) / 3;
 
 				controls = new THREE.OrbitControls( camera );
 				controls.damping = 0.2;
@@ -100,10 +103,8 @@
 
 
 				scene = new THREE.Scene();
+				scene.rotateZ(Math.PI / 6)
 
-				var offset = -1 * gridSize * size / 2;
-
-				scene.position.set(offset, offset, offset)
 
 				scene.fog = new THREE.Fog( 0x050505, 2000, 3500 );
 
@@ -117,6 +118,13 @@
 				light2.position.set( 0, -1, 0 );
 				scene.add( light2 );
 
+				cubeGroups = new THREE.Object3D()
+				scene.add(cubeGroups)
+
+				var offset = -1 * gridSize * size / 2;
+
+				cubeGroups.position.set(offset, offset, offset)
+
 				for(var x = 0; x < gridSize; x++){
 					positions.push([])
 					for(var y = 0; y < gridSize; y++){
@@ -125,10 +133,10 @@
 							if(Math.random() < probability){
 								var add = makeRandomColoredCube();
 								add.position.set(x, y, z)
-								scene.add(add)
+								cubeGroups.add(add)
 								positions[x][y].push(add)
 							} else {
-								positions[x][y].push(null)	
+								positions[x][y].push(null)
 							}
 							
 						}
@@ -187,35 +195,51 @@
 
 			}
 
-			function shiftRed(){
-
+			function shift(dir, col){//dir is a map {x:0,y:0,z:0} , but one of the 0's is a dir is string red, green, or blue
 				for(var x = 0; x < gridSize; x++)
 					for(var y = 0; y < gridSize; y++)
 						for(var z = 0; z < gridSize; z++){
-							var newX = (x+1)%gridSize;
 
-							if(!positions[x][y][z] || positions[newX][y][z])
+							var pos = {x:x,y:y,z:z}
+
+							for(var axis in dir){
+								pos[axis] += (dir[axis] + gridSize)
+								pos[axis] %= gridSize
+							}
+
+							if(!positions[x][y][z])
 								continue;
-							var chunk = positions[x][y][z]
-							// console.log(chunk.children[0].material.isRed)
+							if(positions[pos.x][pos.y][pos.z] != null)
+								continue;
 
-							// if(!chunk.material.isRed)
-							// 	continue
+							if(positions[x][y][z].children[0].material.col != col)
+								continue;
 
-							chunk.position.setX(newX)
-							positions[newX][y][z] = chunk
+							positions[x][y][z].position.set(pos.x, pos.y, pos.z)
+							// console.log(x, pos.x, "-", y, pos.y, "-", z, pos.z)
+							positions[pos.x][pos.y][pos.z] = positions[x][y][z]
 							positions[x][y][z] = null
-
-
-
 						}
 			}
 
 			function render() {
 
-				t += 0.025	
+				i++;
+
+				t = i
+
+				if(parseInt(t) == t){
+					if(t % 3 == 0)
+						shift({x:-1}, "red")
+					else if(t % 3 == 1)
+						shift({y:-1}, "blue")
+					else
+						shift({z:-1}, "green")
+				}
 
 				renderer.render( scene, camera );
+
+				scene.rotateZ(0.005)
 
 			}
 
