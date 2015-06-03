@@ -168,13 +168,14 @@
 				return mesh;
 			}
 
-			function makeCubeGroup(mat){
-				var group = new THREE.Object3D();
+			function makeCubeGroup(mat){//redundant right now - originally used to add the borders
+				// var group = new THREE.Object3D();
 
-				group.add(makeCube(mat))
-				// group.add(makeCubeOutline(mat))
+				// group.add(makeCube(mat))
+				// // group.add(makeCubeOutline(mat))
 
-				return group
+				// return group
+				return makeCube(mat)
 			}
 
 			function makeCubeOutline(mat){
@@ -218,7 +219,9 @@
 							if(positions[pos.x][pos.y][pos.z] != null)
 								continue;
 
-							if(positions[x][y][z].children[0].material.col != col)
+							// if(positions[x][y][z].children[0].material.col != col)
+							// 	continue;
+							if(positions[x][y][z].material.col != col)
 								continue;
 
 							positions[x][y][z].position.set(pos.x, pos.y, pos.z)
