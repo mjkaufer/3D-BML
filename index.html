@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>3D BML Traffic Simulator</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+		<style>
+			body {
+				color: #cccccc;
+				font-family:Monospace;
+				font-size:13px;
+				text-align:center;
+
+				background-color: #050505;
+				margin: 0px;
+				overflow: hidden;
+			}
+
+		</style>
+	</head>
+	<body>
+
+		<div id="container"></div>
+
+		<script src="js/three.min.js"></script>
+		<script src="js/OrbitControls.js"></script>
+		<script src="js/dat.min.js"></script>
+		<script>
+
+			var container;
+
+			var camera, scene, renderer, controls;
+
+			var mesh;
+
+			var t = 0
+
+			var mainGroup
+
+			var red = new THREE.Color().setRGB(255,0,0)
+			var green = new THREE.Color().setRGB(0,255,0)
+			var blue = new THREE.Color().setRGB(0,0,255)
+
+			var redMat = makeMaterial(red)
+			var greenMat = makeMaterial(green)
+			var blueMat = makeMaterial(blue)
+
+			var wireframeMat = new THREE.MeshBasicMaterial({wireframe: true, wireframeLinewidth: 6, color: 0xffffff})
+
+			var size = 1;
+
+			var gridSize = 20;
+
+			var probability = 0.125;
+			var positions = []
+
+			var cubeGeo = new THREE.BoxGeometry(size, size, size)
+
+			init();
+			animate();
+
+			function makeRandomColoredCube(){
+				var p = Math.random()
+
+				if(p < 1/3)
+					return makeCubeGroup(redMat)
+				else if(p < 2/3)
+					return makeCubeGroup(greenMat)
+				
+				return makeCubeGroup(blueMat)
+			}
+
+			function makeMaterial(col){
+				return new THREE.MeshBasicMaterial({
+					color: col,
+					depthTest: true,
+					depthWrite: true,
+					opacity: 0.75
+				})
+			}
+
+			function init() {
+
+
+				container = document.getElementById( 'container' );
+
+
+				camera = new THREE.PerspectiveCamera( 27, window.innerWidth / window.innerHeight, 1, 3500 );
+				camera.position.z = 4;
+				camera.position.y = -35;
+
+				controls = new THREE.OrbitControls( camera );
+				controls.damping = 0.2;
+				controls.addEventListener( 'change', render );
+
+
+				scene = new THREE.Scene();
+
+				var offset = -1 * gridSize * size / 2;
+
+				scene.position.set(offset, offset, offset)
+
+				scene.fog = new THREE.Fog( 0x050505, 2000, 3500 );
+
+				scene.add( new THREE.AmbientLight( 0x444444 ) );
+
+				var light1 = new THREE.DirectionalLight( 0xffffff, 0.5 );
+				light1.position.set( 1, 1, 1 );
+				scene.add( light1 );
+
+				var light2 = new THREE.DirectionalLight( 0xffffff, 1.5 );
+				light2.position.set( 0, -1, 0 );
+				scene.add( light2 );
+
+				for(var x = 0; x < gridSize; x++){
+					positions.push([])
+					for(var y = 0; y < gridSize; y++){
+						positions[x].push([])
+						for(var z = 0; z < gridSize; z++){
+							if(Math.random() < probability){
+								var add = makeRandomColoredCube();
+								add.position.set(x, y, z)
+								scene.add(add)
+								positions[x][y].push(add)
+							} else {
+								positions[x][y].push(null)	
+							}
+							
+						}
+					}
+				}
+				renderer = new THREE.WebGLRenderer( { antialias: false } );
+				renderer.setClearColor( scene.fog.color );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+				renderer.gammaInput = true;
+				renderer.gammaOutput = true;
+
+				container.appendChild( renderer.domElement );
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+
+			function makeCube(mat){
+				var mesh = new THREE.Mesh(cubeGeo, mat);
+				mesh.scale.multiplyScalar(0.99)
+				return mesh;
+			}
+
+			function makeCubeGroup(mat){
+				var group = new THREE.Object3D();
+
+				group.add(makeCube(mat))
+				group.add(makeCubeOutline(mat))
+
+				return group
+			}
+
+			function makeCubeOutline(mat){
+				
+				return new THREE.Mesh(cubeGeo, wireframeMat)
+			}
+
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+				controls.update()
+
+				render();
+
+			}
+
+			function render() {
+
+				t += 0.025	
+
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+
+	</body>
+</html>
