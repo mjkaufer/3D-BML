@@ -43,8 +43,11 @@
 			var blue = new THREE.Color().setRGB(0,0,255)
 
 			var redMat = makeMaterial(red)
+			redMat.isRed = true;
 			var greenMat = makeMaterial(green)
+			greenMat.isGreen = true;
 			var blueMat = makeMaterial(blue)
+			blueMat.isBlue = true;
 
 			var wireframeMat = new THREE.MeshBasicMaterial({wireframe: true, wireframeLinewidth: 6, color: 0xffffff})
 
@@ -182,6 +185,30 @@
 
 				render();
 
+			}
+
+			function shiftRed(){
+
+				for(var x = 0; x < gridSize; x++)
+					for(var y = 0; y < gridSize; y++)
+						for(var z = 0; z < gridSize; z++){
+							var newX = (x+1)%gridSize;
+
+							if(!positions[x][y][z] || positions[newX][y][z])
+								continue;
+							var chunk = positions[x][y][z]
+							// console.log(chunk.children[0].material.isRed)
+
+							// if(!chunk.material.isRed)
+							// 	continue
+
+							chunk.position.setX(newX)
+							positions[newX][y][z] = chunk
+							positions[x][y][z] = null
+
+
+
+						}
 			}
 
 			function render() {
