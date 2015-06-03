@@ -53,9 +53,13 @@
 
 			var size = 1;
 
-			var gridSize = 9;
+			// var gridDimensions = new THREE.Vector3(13, 14, 15)
+			var gridDimensions = new THREE.Vector3(13, 13, 13)
 
-			var probability = 0.25;
+			var gridSize = gridDimensions.length();
+			// var gridSize = 10
+
+			var probability = 0.3;
 			var positions = []
 
 			var i = 0;
@@ -94,8 +98,8 @@
 
 
 				camera = new THREE.PerspectiveCamera( 27, window.innerWidth / window.innerHeight, 1, 3500 );
-				camera.position.z = 25 * Math.sqrt(gridSize) / 3;
-				camera.position.y = -70 * Math.sqrt(gridSize) / 3;
+				camera.position.z = 25 * Math.sqrt(gridSize) / 4;
+				camera.position.y = -70 * Math.sqrt(gridSize) / 4;
 
 				controls = new THREE.OrbitControls( camera );
 				controls.damping = 0.2;
@@ -123,13 +127,15 @@
 
 				var offset = -1 * gridSize * size / 2;
 
-				cubeGroups.position.set(offset, offset, offset)
+				var offset = gridDimensions.clone().multiplyScalar(-1/2 * size)
 
-				for(var x = 0; x < gridSize; x++){
+				cubeGroups.position.set(offset.x, offset.y, offset.z)
+
+				for(var x = 0; x < gridDimensions.x; x++){
 					positions.push([])
-					for(var y = 0; y < gridSize; y++){
+					for(var y = 0; y < gridDimensions.y; y++){
 						positions[x].push([])
-						for(var z = 0; z < gridSize; z++){
+						for(var z = 0; z < gridDimensions.z; z++){
 							if(Math.random() < probability){
 								var add = makeRandomColoredCube();
 								add.position.set(x, y, z)
@@ -196,15 +202,15 @@
 			}
 
 			function shift(dir, col){//dir is a map {x:0,y:0,z:0} , but one of the 0's is a dir is string red, green, or blue
-				for(var x = 0; x < gridSize; x++)
-					for(var y = 0; y < gridSize; y++)
-						for(var z = 0; z < gridSize; z++){
+				for(var x = 0; x < gridDimensions.x; x++)
+					for(var y = 0; y < gridDimensions.y; y++)
+						for(var z = 0; z < gridDimensions.z; z++){
 
 							var pos = {x:x,y:y,z:z}
 
 							for(var axis in dir){
-								pos[axis] += (dir[axis] + gridSize)
-								pos[axis] %= gridSize
+								pos[axis] += (dir[axis] + gridDimensions[axis])
+								pos[axis] %= gridDimensions[axis]
 							}
 
 							if(!positions[x][y][z])
@@ -226,12 +232,11 @@
 
 				i++;
 
-				t = i
 
-				if(parseInt(t) == t){
-					if(t % 3 == 0)
+				if(parseInt(i) == i){
+					if(i % 3 == 0)
 						shift({x:-1}, "red")
-					else if(t % 3 == 1)
+					else if(i % 3 == 1)
 						shift({y:-1}, "blue")
 					else
 						shift({z:-1}, "green")
