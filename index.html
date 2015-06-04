@@ -28,6 +28,7 @@
 		<script src="js/dat.min.js"></script>
 		<script>
 
+
 			var container;
 
 			var camera, scene, renderer, controls;
@@ -38,9 +39,9 @@
 
 			var mainGroup
 
-			var red = new THREE.Color().setRGB(255,0,0)
-			var green = new THREE.Color().setRGB(0,255,0)
-			var blue = new THREE.Color().setRGB(0,0,255)
+			var red = new THREE.Color().setRGB(1,0,0)
+			var green = new THREE.Color().setRGB(0,1,0)
+			var blue = new THREE.Color().setRGB(0,0,1)
 
 			var redMat = makeMaterial(red)
 			redMat.col = "red";
@@ -59,6 +60,68 @@
 			var gridSize = gridDimensions.length()
 
 			var probability = 0.125;
+
+
+			var Size = function(){
+				var s = 25;
+				this.x = s;
+				this.y = s+1;
+				this.z = s+2;
+			}
+
+			var Controls = function(){
+				this.probability = 0.125;
+				this.speed = 1;
+				// this.rotationZ = 0;
+				// this.
+			}
+
+			var Colors = function(){
+				this.colorOne = "#ff0000";
+				this.colorTwo = "#00ff00";
+				this.colorThree = "#0000ff";
+			}
+
+			var sizeControl = new Size();
+			var colControl = new Colors();
+			var genControl = new Controls();
+
+			var gui = new dat.GUI();
+			var min = 1;
+			var max = 50;
+
+			// gui.add(sizeControl, 'x', min, max).onFinishChange(function(v){
+			// 	changeSize(v, startGridDimensions.y, startGridDimensions.z)
+			// })
+			// gui.add(sizeControl, 'y', min, max).onFinishChange(function(v){
+			// 	changeSize(gridDimensions.x, v, gridDimensions.z)
+			// })
+			gui.add(sizeControl, 'z', min, max).onFinishChange(function(v){
+				changeSize(startGridDimensions.x, startGridDimensions.y, v)
+			})
+
+			gui.add(genControl, 'probability').onFinishChange(function(v){
+				changeDensity(v);
+			})
+			gui.add(genControl, 'speed', 1, 20, 1).step(1).onFinishChange(function(v){
+				speed = v;
+			})
+
+			gui.addColor(colControl, 'colorOne').onChange(function(v){
+				redMat.color = new THREE.Color(v)
+			})
+			gui.addColor(colControl, 'colorTwo').onChange(function(v){
+				greenMat.color = new THREE.Color(v)
+			})
+			gui.addColor(colControl, 'colorThree').onChange(function(v){
+				blueMat.color = new THREE.Color(v)
+			})
+
+
+			// var generators = gui.addFolder("Generators")
+
+
+
 			var positions;
 
 			var i = 0;
@@ -103,6 +166,17 @@
 				controls = new THREE.OrbitControls( camera );
 				controls.damping = 0.2;
 				controls.addEventListener( 'change', render );
+
+				var datDom = gui.domElement;
+
+				datDom.onmouseenter = function(){
+					controls.enabled = false
+				}
+
+				datDom.onmouseleave = function(){
+					controls.enabled = true
+				}
+
 				scene = new THREE.Scene();
 
 				populateScene();
@@ -118,6 +192,9 @@
 				container.appendChild( renderer.domElement );
 
 				window.addEventListener( 'resize', onWindowResize, false );
+
+
+
 
 			}
 
@@ -135,6 +212,9 @@
 
 				gridDimensions = startGridDimensions.clone()
 				gridSize = gridDimensions.length()
+
+				camera.position.z = 25 * Math.sqrt(gridSize) / 4;
+				camera.position.y = -70 * Math.sqrt(gridSize) / 4;
 
 				scene.children = []
 				positions = [];
@@ -287,7 +367,7 @@
 
 				i++;
 
-				var t = i / (speed || 1)
+				var t = i / (parseInt(speed) || 1)
 
 
 				if(parseInt(t) == t){
