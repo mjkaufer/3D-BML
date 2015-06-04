@@ -54,15 +54,12 @@
 			var size = 1;
 			var speed = 3;
 
-			// var gridDimensions = new THREE.Vector3(13, 14, 15)
-			var gridDimensions = new THREE.Vector3(13, 14, 15)
+			var gridDimensions = new THREE.Vector3(25, 26, 27)
 
-			gridDimensions.add(new THREE.Vector3(1,1,1))//there's a really weird bug, and this is my really weird way to fix it
 
 			var gridSize = gridDimensions.length();
-			// var gridSize = 10
 
-			var probability = 0.1;
+			var probability = 0.125;
 			var positions = []
 
 			var i = 0;
@@ -139,10 +136,6 @@
 					for(var y = 0; y < gridDimensions.y; y++){
 						positions[x].push([])
 						for(var z = 0; z < gridDimensions.z; z++){
-							if(x == gridDimensions.x - 1 || y == gridDimensions.y - 1 || z == gridDimensions.z - 1){
-								positions[x][y].push(null)
-								continue
-							}
 							if(Math.random() < probability){
 								var add = makeRandomColoredCube();
 								add.position.set(x, y, z)
@@ -176,12 +169,7 @@
 			}
 
 			function makeCubeGroup(mat){//redundant right now - originally used to add the borders
-				// var group = new THREE.Object3D();
 
-				// group.add(makeCube(mat))
-				// // group.add(makeCubeOutline(mat))
-
-				// return group
 				return makeCube(mat)
 			}
 
@@ -209,7 +197,20 @@
 
 			}
 
+			function xyzToKey(x, y, z){
+				return x + ":" + y + ":" + z
+			}
+
+			function keyToXyz(key){
+				return key.split(":").map(function(e){return parseInt(e)})
+			}
+
 			function shift(dir, col){//dir is a map {x:0,y:0,z:0} , but one of the 0's is a dir is string red, green, or blue
+
+				var updateMap = {//key is FUTURE value, value is current value
+
+				}
+
 				for(var x = 0; x < gridDimensions.x; x++)
 					for(var y = 0; y < gridDimensions.y; y++)
 						for(var z = 0; z < gridDimensions.z; z++){
@@ -236,11 +237,21 @@
 							if(positions[x][y][z].material.col != col)
 								continue;
 
+							if(updateMap[xyzToKey(pos.x, pos.y, pos.z)])
+								continue;
+
 							positions[x][y][z].position.set(pos.x, pos.y, pos.z)
-							// console.log(x, pos.x, "-", y, pos.y, "-", z, pos.z)
-							positions[pos.x][pos.y][pos.z] = positions[x][y][z]
-							positions[x][y][z] = null
+
+							updateMap[xyzToKey(pos.x, pos.y, pos.z)] = xyzToKey(x, y, z)
 						}
+
+				for(var result in updateMap){//the reason we store stuff in this updateMap is so because we can't live update - I've encountered the same issue when coding the game of life - live updating will move a block that a different block may be looking at later.
+					var fin = keyToXyz(result)
+					var start = keyToXyz(updateMap[result])
+					positions[fin[0]][fin[1]][fin[2]] = positions[start[0]][start[1]][start[2]]
+					positions[start[0]][start[1]][start[2]] = null
+
+				}
 			}
 
 			function render() {
