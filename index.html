@@ -71,7 +71,7 @@
 
 			var Controls = function(){
 				this.probability = 0.125;
-				this.speed = 1;
+				this.slowness = 1;
 				// this.rotationZ = 0;
 				// this.
 			}
@@ -100,10 +100,10 @@
 				changeSize(startGridDimensions.x, startGridDimensions.y, v)
 			})
 
-			gui.add(genControl, 'probability').onFinishChange(function(v){
+			gui.add(genControl, 'probability', 0, 1).onFinishChange(function(v){
 				changeDensity(v);
 			})
-			gui.add(genControl, 'speed', 1, 20, 1).step(1).onFinishChange(function(v){
+			gui.add(genControl, 'slowness', 1, 20, 1).step(1).onFinishChange(function(v){
 				speed = v;
 			})
 
