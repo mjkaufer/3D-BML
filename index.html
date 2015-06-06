@@ -60,6 +60,8 @@
 			var gridSize = gridDimensions.length()
 
 			var probability = 0.125;
+			var rotateBy = 0.005;
+			var paused = false;
 
 
 			var Size = function(){
@@ -72,6 +74,8 @@
 			var Controls = function(){
 				this.probability = 0.125;
 				this.slowness = 1;
+				this.rotation = rotateBy;
+				this.paused = paused;
 				// this.rotationZ = 0;
 				// this.
 			}
@@ -90,22 +94,28 @@
 			var min = 1;
 			var max = 50;
 
-			gui.add(sizeControl, 'x', min, max, 1).onFinishChange(function(v){
-				changeSize(parseInt(v), startGridDimensions.y, startGridDimensions.z)
+			gui.add(sizeControl, 'x', min, max, 1).step(1).onFinishChange(function(v){
+				changeSize(v, startGridDimensions.y, startGridDimensions.z)
 			})
-			gui.add(sizeControl, 'y', min, max, 1).onFinishChange(function(v){
-				changeSize(startGridDimensions.x, parseInt(v), startGridDimensions.z)
+			gui.add(sizeControl, 'y', min, max, 1).step(1).onFinishChange(function(v){
+				changeSize(startGridDimensions.x, v, startGridDimensions.z)
 			})
 
-			gui.add(sizeControl, 'z', min, max, 1).onFinishChange(function(v){
-				changeSize(startGridDimensions.x, startGridDimensions.y, parseInt(v))
+			gui.add(sizeControl, 'z', min, max, 1).step(1).onFinishChange(function(v){
+				changeSize(startGridDimensions.x, startGridDimensions.y, v)
 			})
 
 			gui.add(genControl, 'probability', 0, 1).onFinishChange(function(v){
 				changeDensity(v);
 			})
-			gui.add(genControl, 'slowness', 1, 20, 1).step(1).onFinishChange(function(v){
+			gui.add(genControl, 'slowness', 1, 20).step(1).onFinishChange(function(v){
 				speed = v;
+			})
+			gui.add(genControl, 'rotation', 0, 0.1).onFinishChange(function(v){
+				rotateBy = v;
+			})
+			gui.add(genControl, 'paused').onFinishChange(function(v){
+				paused = v;
 			})
 
 			gui.addColor(colControl, 'colorOne').onChange(function(v){
@@ -368,18 +378,23 @@
 
 			function render() {
 
-				i++;
 
-				var t = i / (parseInt(speed) || 1)
+				if(!paused){
+
+					i++;
+
+					var t = i / (parseInt(speed) || 1)
 
 
-				if(parseInt(t) == t){
-					stepShift(t)
+					if(parseInt(t) == t){
+						stepShift(t)
+					}
+
 				}
 
 				renderer.render( scene, camera );
 
-				scene.rotateZ(0.005)
+				scene.rotateZ(rotateBy)
 
 			}
 
