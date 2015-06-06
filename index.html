@@ -90,14 +90,15 @@
 			var min = 1;
 			var max = 50;
 
-			// gui.add(sizeControl, 'x', min, max).onFinishChange(function(v){
-			// 	changeSize(v, startGridDimensions.y, startGridDimensions.z)
-			// })
-			// gui.add(sizeControl, 'y', min, max).onFinishChange(function(v){
-			// 	changeSize(gridDimensions.x, v, gridDimensions.z)
-			// })
-			gui.add(sizeControl, 'z', min, max).onFinishChange(function(v){
-				changeSize(startGridDimensions.x, startGridDimensions.y, v)
+			gui.add(sizeControl, 'x', min, max, 1).onFinishChange(function(v){
+				changeSize(parseInt(v), startGridDimensions.y, startGridDimensions.z)
+			})
+			gui.add(sizeControl, 'y', min, max, 1).onFinishChange(function(v){
+				changeSize(startGridDimensions.x, parseInt(v), startGridDimensions.z)
+			})
+
+			gui.add(sizeControl, 'z', min, max, 1).onFinishChange(function(v){
+				changeSize(startGridDimensions.x, startGridDimensions.y, parseInt(v))
 			})
 
 			gui.add(genControl, 'probability', 0, 1).onFinishChange(function(v){
@@ -218,6 +219,8 @@
 
 				scene.children = []
 				positions = [];
+				updateMap = [];
+
 
 				scene.rotation.setFromVector3(new THREE.Vector3(0, 0, Math.PI / 6))
 
