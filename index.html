@@ -62,6 +62,7 @@
 			var probability = 0.125;
 			var rotateBy = 0.005;
 			var paused = false;
+			var opacity = 0.75;
 
 
 			var Size = function(){
@@ -76,6 +77,7 @@
 				this.slowness = 1;
 				this.rotation = rotateBy;
 				this.paused = paused;
+				this.opacity = opacity;
 				// this.rotationZ = 0;
 				// this.
 			}
@@ -108,14 +110,17 @@
 			gui.add(genControl, 'probability', 0, 1).onFinishChange(function(v){
 				changeDensity(v);
 			})
-			gui.add(genControl, 'slowness', 1, 20).step(1).onFinishChange(function(v){
+			gui.add(genControl, 'slowness', 1, 20).step(1).onChange(function(v){
 				speed = v;
 			})
-			gui.add(genControl, 'rotation', 0, 0.1).onFinishChange(function(v){
+			gui.add(genControl, 'rotation', 0, 0.1).onChange(function(v){
 				rotateBy = v;
 			})
 			gui.add(genControl, 'paused').onFinishChange(function(v){
 				paused = v;
+			})
+			gui.add(genControl, 'opacity', 0, 1).onChange(function(v){
+				opacity = redMat.opacity = greenMat.opacity = blueMat.opacity = v;
 			})
 
 			gui.addColor(colControl, 'colorOne').onChange(function(v){
@@ -159,7 +164,7 @@
 					color: col,
 					depthTest: true,
 					depthWrite: true,
-					opacity: 0.75,
+					opacity: opacity,
 					transparent: true
 				})
 			}
